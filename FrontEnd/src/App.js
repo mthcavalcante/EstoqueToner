@@ -1,31 +1,58 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Header from './components/Header';
 import Sidebar from './components/Sidebar';
-import StockList from './components/StockList';
-import './styles/App.css';
+import Dashboard from './components/Dashboard';
+import History from './components/History';
+import TonerForm from './components/TonerForm';
+import CreateUser from './components/CreateUser';
+import Login from './pages/Login';
+import ProtectedRoute from './components/ProtectedRoute';
 
 const App = () => {
-    const [toners, setToners] = useState([]);
-
-    useEffect(() => {
-        axios.get('http://localhost:5040/api/toners')
-            .then(response => setToners(response.data))
-            .catch(error => console.error('Erro ao carregar os toners:', error));
-    }, []);
-
     return (
-        <div className="app">
-            <Header />
-            <div className="main-content">
-                <Sidebar />
-                <div className="dashboard">
-                    <h2>Status do Estoque</h2>
-                    <StockList toners={toners} />
-                </div>
-            </div>
-        </div>
+        <Router>
+            <Routes>
+                <Route path="/login" element={<Login />} />
+                <Route
+                    path="/"
+                    element={
+                        <ProtectedRoute>
+                            <Header />
+                            <div className="main-content">
+                                <Sidebar />
+                                <Dashboard />
+                            </div>
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/history"
+                    element={
+                        <ProtectedRoute>
+                            <History />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/toner"
+                    element={
+                        <ProtectedRoute>
+                            <TonerForm />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/users"
+                    element={
+                        <ProtectedRoute>
+                            <CreateUser />
+                        </ProtectedRoute>
+                    }
+                />
+            </Routes>
+        </Router>
     );
-}
+};
 
 export default App;
