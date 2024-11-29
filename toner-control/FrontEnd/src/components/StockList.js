@@ -1,11 +1,6 @@
 import React from 'react';
 
-const StockList = () => {
-    const toners = [
-        { nome: 'Toner HP', modelo: '123A', quantidade: 50 },
-        { nome: 'Toner Brother', modelo: 'TN-2320', quantidade: 10 },
-    ];
-
+const StockList = ({ toners }) => {
     return (
         <div className="stock-list">
             <h3>Lista de Estoque</h3>
