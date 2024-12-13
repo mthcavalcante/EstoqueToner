@@ -1,70 +1,44 @@
 <!-- src/components/TonerList.vue -->
 <template>
-  <div class="bg-white shadow-md rounded my-6">
-    <div class="px-6 py-4 border-b">
-      <div class="flex justify-between items-center">
-        <h2 class="text-xl font-semibold">Lista de Toners</h2>
-        <router-link
-          to="/toners/add"
-          class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-        >
-          Adicionar Novo Toner
-        </router-link>
-      </div>
-      <div class="mt-4">
-        <input
-          type="text"
-          v-model="search"
-          placeholder="Pesquisar toners..."
-          class="w-full px-3 py-2 border rounded"
-        />
-      </div>
+  <div class="bg-white shadow-md rounded my-6 p-6">
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-2xl font-semibold">Lista de Toners</h2>
+      <el-button type="primary" @click="navigateToAdd">Adicionar Novo Toner</el-button>
     </div>
-    <div class="overflow-x-auto">
-      <table class="min-w-full bg-white">
-        <thead class="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
-          <tr>
-            <th class="py-3 px-6 text-left">ID</th>
-            <th class="py-3 px-6 text-left">Nome do Toner</th>
-            <th class="py-3 px-6 text-left">Marca/Modelo Compatível</th>
-            <th class="py-3 px-6 text-left">Código</th>
-            <th class="py-3 px-6 text-left">Nível Mínimo</th>
-            <th class="py-3 px-6 text-left">Estoque Atual</th>
-            <th class="py-3 px-6 text-left">Ações</th>
-          </tr>
-        </thead>
-        <tbody class="text-gray-600 text-sm font-light">
-          <tr
-            v-for="toner in filteredToners"
-            :key="toner.id"
-            class="border-b border-gray-200 hover:bg-gray-100"
-          >
-            <td class="py-3 px-6 text-left">{{ toner.id }}</td>
-            <td class="py-3 px-6 text-left">{{ toner.name }}</td>
-            <td class="py-3 px-6 text-left">{{ toner.compatible }}</td>
-            <td class="py-3 px-6 text-left">{{ toner.code }}</td>
-            <td class="py-3 px-6 text-left">{{ toner.minLevel }}</td>
-            <td class="py-3 px-6 text-left">{{ toner.currentStock }}</td>
-            <td class="py-3 px-6 text-left space-x-2">
-              <router-link
-                :to="`/toners/edit/${toner.id}`"
-                class="text-blue-500 hover:text-blue-700"
-              >
-                Editar
-              </router-link>
-              <button
-                @click="deleteToner(toner.id)"
-                class="text-red-500 hover:text-red-700"
-              >
-                Excluir
-              </button>
-            </td>
-          </tr>
-          <tr v-if="filteredToners.length === 0">
-            <td colspan="7" class="text-center py-4">Nenhum toner encontrado.</td>
-          </tr>
-        </tbody>
-      </table>
+    <el-input
+      v-model="search"
+      placeholder="Pesquisar toners..."
+      class="mb-4"
+      prefix-icon="el-icon-search"
+      clearable
+    ></el-input>
+    <el-table
+      :data="filteredToners"
+      style="width: 100%"
+      border
+      stripe
+    >
+      <el-table-column prop="id" label="ID" width="80">
+      </el-table-column>
+      <el-table-column prop="name" label="Nome do Toner">
+      </el-table-column>
+      <el-table-column prop="compatible" label="Marca/Modelo Compatível">
+      </el-table-column>
+      <el-table-column prop="code" label="Código">
+      </el-table-column>
+      <el-table-column prop="minLevel" label="Nível Mínimo">
+      </el-table-column>
+      <el-table-column prop="currentStock" label="Estoque Atual">
+      </el-table-column>
+      <el-table-column label="Ações" width="180">
+        <template #default="scope">
+          <el-button size="mini" type="info" @click="navigateToEdit(scope.row.id)">Editar</el-button>
+          <el-button size="mini" type="danger" @click="deleteToner(scope.row.id)">Excluir</el-button>
+        </template>
+      </el-table-column>
+    </el-table>
+    <div v-if="filteredToners.length === 0" class="text-center mt-4">
+      Nenhum toner encontrado.
     </div>
   </div>
 </template>
@@ -95,11 +69,27 @@ export default {
     loadToners() {
       this.toners = StorageService.getData('toners')
     },
+    navigateToAdd() {
+      this.$router.push('/toners/add')
+    },
+    navigateToEdit(id) {
+      this.$router.push(`/toners/edit/${id}`)
+    },
     deleteToner(id) {
-      if (confirm('Tem certeza que deseja excluir este toner?')) {
+      this.$confirm('Tem certeza que deseja excluir este toner?', 'Confirmação', {
+        confirmButtonText: 'Sim',
+        cancelButtonText: 'Não',
+        type: 'warning',
+      }).then(() => {
         this.toners = this.toners.filter(toner => toner.id !== id)
         StorageService.setData('toners', this.toners)
-      }
+        this.$message({
+          type: 'success',
+          message: 'Toner excluído com sucesso!'
+        })
+      }).catch(() => {
+        // Ação cancelada
+      })
     },
   },
 }

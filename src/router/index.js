@@ -1,5 +1,6 @@
 // src/router/index.js
 import { createRouter, createWebHistory } from 'vue-router'
+import Dashboard from '../components/DashboardList.vue' // Novo componente
 import TonerList from '../components/TonerList.vue'
 import TonerForm from '../components/TonerForm.vue'
 import SupplierList from '../components/SupplierList.vue'
@@ -8,7 +9,8 @@ import StockMovement from '../components/StockMovement.vue'
 import StockReports from '../components/StockReports.vue'
 
 const routes = [
-  { path: '/', redirect: '/toners' },
+  { path: '/', redirect: '/dashboard' }, // Redirecionar para o Dashboard
+  { path: '/dashboard', component: Dashboard },
   { path: '/toners', component: TonerList },
   { path: '/toners/add', component: TonerForm },
   { path: '/toners/edit/:id', component: TonerForm, props: true },

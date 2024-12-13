@@ -6,7 +6,8 @@
       <div class="text-lg font-semibold">
         Controle de Estoque de Toners
       </div>
-      <div class="space-x-4">
+      <div class="space-x-4 flex items-center">
+        <router-link to="/dashboard" class="hover:underline">Dashboard</router-link>
         <router-link to="/toners" class="hover:underline">Toners</router-link>
         <router-link to="/suppliers" class="hover:underline">Fornecedores</router-link>
         <router-link to="/movements" class="hover:underline">Movimentações</router-link>
@@ -37,6 +38,8 @@ export default {
 }
 </script>
 
-<style>
-/* Você pode adicionar estilos personalizados aqui */
+<style scoped>
+.headline {
+  font-weight: bold;
+}
 </style>
