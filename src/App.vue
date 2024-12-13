@@ -39,6 +39,9 @@ export default {
 </script>
 
 <style scoped>
+*{
+  user-select: none;
+}
 .headline {
   font-weight: bold;
 }
