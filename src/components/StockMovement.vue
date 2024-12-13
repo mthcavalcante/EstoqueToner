@@ -2,143 +2,151 @@
 <template>
   <div class="bg-white shadow-md rounded my-6 p-6">
     <h2 class="text-2xl font-semibold mb-4">Movimentação de Estoque</h2>
-    <form @submit.prevent="recordMovement" class="mb-6">
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <!-- Toner -->
-        <div>
-          <label class="block text-gray-700 text-sm font-bold mb-2" for="toner">
-            Toner
-          </label>
-          <select
-            id="toner"
-            v-model="movement.tonerId"
-            required
-            class="w-full px-3 py-2 border rounded"
-          >
-            <option disabled value="">Selecione um toner</option>
-            <option v-for="toner in toners" :key="toner.id" :value="toner.id">
-              {{ toner.name }}
-            </option>
-          </select>
-        </div>
+    <el-form @submit.prevent="recordMovement" label-width="200px">
+      <!-- Tipo de Movimentação -->
+      <el-form-item
+        label="Tipo de Movimentação"
+        :rules="[{ required: true, message: 'Por favor, selecione o tipo de movimentação', trigger: 'change' }]"
+      >
+        <el-select v-model="movement.type" placeholder="Selecione o tipo" clearable @change="handleTypeChange">
+          <el-option
+            v-for="type in movementTypes"
+            :key="type"
+            :label="capitalize(type)"
+            :value="type"
+          ></el-option>
+        </el-select>
+      </el-form-item>
 
-        <!-- Tipo de Movimentação -->
-        <div>
-          <label class="block text-gray-700 text-sm font-bold mb-2" for="type">
-            Tipo de Movimentação
-          </label>
-          <select
-            id="type"
-            v-model="movement.type"
-            required
-            class="w-full px-3 py-2 border rounded"
-          >
-            <option disabled value="">Selecione o tipo</option>
-            <option v-for="type in movementTypes" :key="type" :value="type">
-              {{ type.charAt(0).toUpperCase() + type.slice(1) }}
-            </option>
-          </select>
-        </div>
+      <!-- Técnico Responsável -->
+      <el-form-item
+        v-if="movement.type"
+        :label="movement.type === 'entrada' ? 'Técnico Responsável pela Entrada' : 'Técnico Responsável pela Saída'"
+        :rules="[{ required: true, message: `Por favor, insira o técnico responsável pela ${movement.type}`, trigger: 'blur' }]"
+      >
+        <el-input
+          v-model="movement.technician"
+          :placeholder="`Técnico Responsável pela ${capitalize(movement.type)}`"
+        ></el-input>
+      </el-form-item>
 
-        <!-- Quantidade -->
-        <div>
-          <label class="block text-gray-700 text-sm font-bold mb-2" for="quantity">
-            Quantidade
-          </label>
-          <input
-            id="quantity"
-            type="number"
-            v-model.number="movement.quantity"
-            min="1"
-            required
-            class="w-full px-3 py-2 border rounded"
-          />
-        </div>
+      <!-- Toner -->
+      <el-form-item
+        v-if="movement.type"
+        label="Toner"
+        :rules="[{ required: true, message: 'Por favor, selecione um toner', trigger: 'change' }]"
+      >
+        <el-select v-model="movement.tonerId" placeholder="Selecione um toner" clearable>
+          <el-option
+            v-for="toner in toners"
+            :key="toner.id"
+            :label="toner.name"
+            :value="toner.id"
+          ></el-option>
+        </el-select>
+      </el-form-item>
 
-        <!-- Motivo -->
-        <div>
-          <label class="block text-gray-700 text-sm font-bold mb-2" for="reason">
-            Motivo
-          </label>
-          <input
-            id="reason"
-            type="text"
-            v-model="movement.reason"
-            required
-            class="w-full px-3 py-2 border rounded"
-          />
-        </div>
+      <!-- Quantidade -->
+      <el-form-item
+        v-if="movement.type"
+        label="Quantidade"
+        :rules="[{ required: true, message: 'Por favor, insira a quantidade', trigger: 'blur' }]"
+      >
+        <el-input-number v-model="movement.quantity" :min="1" label="Quantidade"></el-input-number>
+      </el-form-item>
 
-        <!-- Usuário Responsável -->
-        <div>
-          <label class="block text-gray-700 text-sm font-bold mb-2" for="user">
-            Usuário Responsável
-          </label>
-          <input
-            id="user"
-            type="text"
-            v-model="movement.user"
-            required
-            class="w-full px-3 py-2 border rounded"
-          />
-        </div>
-      </div>
-      <div class="flex items-center justify-between mt-4">
-        <button
-          type="submit"
-          class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
+      <!-- Motivo -->
+      <el-form-item
+        v-if="movement.type"
+        label="Motivo"
+        :rules="[{ required: true, message: 'Por favor, insira o motivo', trigger: 'blur' }]"
+      >
+        <el-input v-model="movement.reason" placeholder="Motivo da movimentação"></el-input>
+      </el-form-item>
+
+      <!-- Nome da Pessoa que Pegou e Impressora (Somente para Saída) -->
+      <div v-if="movement.type === 'saida'">
+        <el-form-item
+          label="Nome da Pessoa"
+          :rules="[{ required: true, message: 'Por favor, insira o nome da pessoa que pegou o toner', trigger: 'blur' }]"
         >
-          Registrar Movimentação
-        </button>
-        <button
-          type="button"
-          @click="resetForm"
-          class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
-        >
-          Limpar
-        </button>
-      </div>
-    </form>
+          <el-input v-model="movement.personName" placeholder="Nome da Pessoa"></el-input>
+        </el-form-item>
 
+        <el-form-item
+          label="Impressora"
+          :rules="[{ required: true, message: 'Por favor, insira a impressora', trigger: 'blur' }]"
+        >
+          <el-input v-model="movement.printer" placeholder="Nome da Impressora"></el-input>
+        </el-form-item>
+      </div>
+
+      <!-- Botões de Ação -->
+      <el-form-item>
+        <el-button type="primary" @click="recordMovement">Registrar Movimentação</el-button>
+        <el-button type="default" @click="resetForm">Limpar</el-button>
+      </el-form-item>
+    </el-form>
+
+    <!-- Histórico de Movimentações -->
     <h3 class="text-xl font-semibold mb-4">Histórico de Movimentações</h3>
-    <input
-      type="text"
+    <el-input
       v-model="search"
       placeholder="Pesquisar movimentações..."
-      class="w-full px-3 py-2 border rounded mb-4"
-    />
-    <div class="overflow-x-auto">
-      <table class="min-w-full bg-white">
-        <thead class="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
-          <tr>
-            <th class="py-3 px-6 text-left">ID</th>
-            <th class="py-3 px-6 text-left">Toner</th>
-            <th class="py-3 px-6 text-left">Tipo</th>
-            <th class="py-3 px-6 text-left">Quantidade</th>
-            <th class="py-3 px-6 text-left">Motivo</th>
-            <th class="py-3 px-6 text-left">Usuário</th>
-            <th class="py-3 px-6 text-left">Data</th>
-          </tr>
-        </thead>
-        <tbody class="text-gray-600 text-sm font-light">
-          <tr
-            v-for="movement in filteredMovements"
-            :key="movement.id"
-            class="border-b border-gray-200 hover:bg-gray-100"
-          >
-            <td class="py-3 px-6 text-left">{{ movement.id }}</td>
-            <td class="py-3 px-6 text-left">{{ getTonerName(movement.tonerId) }}</td>
-            <td class="py-3 px-6 text-left capitalize">{{ movement.type }}</td>
-            <td class="py-3 px-6 text-left">{{ movement.quantity }}</td>
-            <td class="py-3 px-6 text-left">{{ movement.reason }}</td>
-            <td class="py-3 px-6 text-left">{{ movement.user }}</td>
-            <td class="py-3 px-6 text-left">{{ movement.date }}</td>
-          </tr>
-          <tr v-if="filteredMovements.length === 0">
-            <td colspan="7" class="text-center py-4">Nenhuma movimentação encontrada.</td>
-          </tr>
-        </tbody>
-      </table>
+      prefix-icon="el-icon-search"
+      clearable
+      class="mb-4"
+    ></el-input>
+    <el-table
+      :data="filteredMovements"
+      style="width: 100%"
+      border
+      stripe
+    >
+      <el-table-column prop="id" label="ID" width="80"></el-table-column>
+      
+      <el-table-column label="Tipo">
+        <template #default="{ row }">
+          {{ capitalize(row.type) }}
+        </template>
+      </el-table-column>
+      
+      <el-table-column label="Toner">
+        <template #default="{ row }">
+          {{ getTonerName(row.tonerId) }}
+        </template>
+      </el-table-column>
+      
+      <el-table-column prop="quantity" label="Quantidade" width="100"></el-table-column>
+      <el-table-column prop="reason" label="Motivo"></el-table-column>
+      <el-table-column prop="technician" label="Técnico Responsável"></el-table-column>
+      
+      <el-table-column
+        prop="personName"
+        label="Pessoa que Pegou"
+        width="150"
+      >
+        <template #default="{ row }">
+          <span v-if="row.type === 'saida'">{{ row.personName }}</span>
+          <span v-else>—</span>
+        </template>
+      </el-table-column>
+      
+      <el-table-column
+        prop="printer"
+        label="Impressora"
+        width="150"
+      >
+        <template #default="{ row }">
+          <span v-if="row.type === 'saida'">{{ row.printer }}</span>
+          <span v-else>—</span>
+        </template>
+      </el-table-column>
+      
+      <el-table-column prop="date" label="Data"></el-table-column>
+    </el-table>
+    <div v-if="filteredMovements.length === 0" class="text-center mt-4">
+      Nenhuma movimentação encontrada.
     </div>
   </div>
 </template>
@@ -154,11 +162,14 @@ export default {
       movements: [],
       movement: {
         id: null,
+        type: '',
+        technician: '',
         tonerId: null,
-        type: 'entrada',
         quantity: 1,
         reason: '',
-        user: '',
+        personName: '', // Para Saída
+        printer: '',    // Para Saída
+        // user: '', // Removido conforme solicitado
         date: '',
       },
       movementTypes: ['entrada', 'saida'],
@@ -176,21 +187,24 @@ export default {
     }
   },
   created() {
-    this.toners = StorageService.getData('toners')
-    this.movements = StorageService.getData('movements')
+    this.loadData()
   },
   methods: {
+    loadData() {
+      this.toners = StorageService.getData('toners')
+      this.movements = StorageService.getData('movements') || []
+    },
     getTonerName(id) {
       const toner = this.toners.find(t => t.id === id)
       return toner ? toner.name : 'Desconhecido'
     },
     recordMovement() {
-      // Validação de estoque para saídas
+      // Validação de movimentação
       if (this.movement.type === 'saida') {
         const toner = this.toners.find(t => t.id === this.movement.tonerId)
         if (toner) {
           if (toner.currentStock < this.movement.quantity) {
-            alert('Estoque insuficiente para esta movimentação.')
+            this.$message.error('Estoque insuficiente para esta movimentação.')
             return
           }
           toner.currentStock -= this.movement.quantity
@@ -211,26 +225,46 @@ export default {
       this.movements.push({ ...this.movement })
       StorageService.setData('movements', this.movements)
 
+      // Exibir mensagem de sucesso
+      this.$message({
+        type: 'success',
+        message: 'Movimentação registrada com sucesso!'
+      })
+
       // Resetar formulário
       this.resetForm()
     },
     resetForm() {
       this.movement = {
         id: null,
+        type: '',
+        technician: '',
         tonerId: null,
-        type: 'entrada',
         quantity: 1,
         reason: '',
-        user: '',
+        personName: '',
+        printer: '',
         date: '',
       }
     },
+    handleTypeChange(selectedType) {
+      // Resetar campos específicos ao mudar o tipo
+      if (selectedType === 'entrada') {
+        this.movement.personName = ''
+        this.movement.printer = ''
+      }
+      if (selectedType === 'saida') {
+        // Nenhuma ação específica, mas pode adicionar lógicas adicionais se necessário
+      }
+    },
+    capitalize(word) {
+      if (!word) return ''
+      return word.charAt(0).toUpperCase() + word.slice(1)
+    }
   },
 }
 </script>
 
 <style scoped>
-.headline {
-  font-weight: bold;
-}
+/* Estilos adicionais, se necessário */
 </style>
