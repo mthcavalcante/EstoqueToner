@@ -3,9 +3,17 @@
   <div class="flex flex-col min-h-screen">
     <!-- Barra de Navegação -->
     <nav class="bg-blue-600 text-white px-4 py-3 flex items-center justify-between">
-      <div class="text-lg font-semibold">
-        Controle de Estoque de Toners
+      <!-- Logotipo da Empresa -->
+      <div class="flex items-center">
+        <router-link to="/">
+          <img :src="logo" alt="Logo da Empresa" class="h-12 mr-3" />
+        </router-link>
+        <span class="text-lg font-semibold">
+          Controle de Estoque de Toners
+        </span>
       </div>
+      
+      <!-- Menu de Navegação -->
       <div class="space-x-4 flex items-center">
         <router-link to="/dashboard" class="hover:underline">Dashboard</router-link>
         <router-link to="/toners" class="hover:underline">Toners</router-link>
@@ -29,8 +37,15 @@
 </template>
 
 <script>
+import logo from '@/assets/logo.png' // Certifique-se de que o caminho está correto e a imagem está na pasta src/assets
+
 export default {
   name: 'App',
+  data() {
+    return {
+      logo, // Adiciona o logotipo ao data para uso no template
+    }
+  },
   computed: {
     currentYear() {
       return new Date().getFullYear()
@@ -40,78 +55,92 @@ export default {
 </script>
 
 <style scoped>
-
-.stock-movement-container {
+/* Estilos Utilitários */
+.flex {
   display: flex;
+}
+
+.flex-col {
   flex-direction: column;
-  gap: 2rem;
 }
 
-.card-title {
-  margin-bottom: 1rem;
+.min-h-screen {
+  min-height: 100vh;
 }
 
-.form-card, .history-card {
-  padding: 1.5rem;
+.bg-blue-600 {
+  background-color: #3182ce;
 }
 
-.add-toner-button {
-  display: flex;
+.text-white {
+  color: #ffffff;
+}
+
+.px-4 {
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+.py-3 {
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+}
+
+.items-center {
   align-items: center;
-  gap: 0.5rem;
 }
 
-.saida-table {
-  margin-top: 1rem;
+.justify-between {
+  justify-content: space-between;
 }
 
-.text-right {
-  text-align: right;
+.text-lg {
+  font-size: 1.125rem;
 }
 
-.action-buttons {
-  display: flex;
-  gap: 1rem;
+.font-semibold {
+  font-weight: 600;
 }
 
-.search-input {
-  width: 100%;
+.space-x-4 > * + * {
+  margin-left: 1rem;
 }
 
-.no-data {
-  text-align: center;
-  color: #909399;
-  padding: 1rem 0;
+.hover\:underline:hover {
+  text-decoration: underline;
 }
 
-.additional-fields, .entrada-fields {
-  margin-top: 1rem;
+.container {
+  max-width: 1200px;
 }
 
-@media (max-width: 768px) {
-  .form-card, .history-card {
-    padding: 1rem;
+.mx-auto {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.p-4 {
+  padding: 1rem;
+}
+
+.h-12 {
+  height: 3rem; /* Ajuste a altura conforme necessário */
+}
+
+.mr-3 {
+  margin-right: 0.75rem;
+}
+
+@media (max-width: 640px) {
+  /* Ajustes responsivos para telas menores, se necessário */
+  .text-lg {
+    font-size: 1rem;
   }
 
-  .action-buttons {
-    flex-direction: column;
-  }
-
-  .add-toner-button {
-    width: 100%;
-    justify-content: center;
-  }
-
-  .text-right {
-    text-align: center;
+  .h-12 {
+    height: 2.5rem;
   }
 }
 
-* {
-  user-select: none;
-}
-
-.headline {
-  font-weight: bold;
-}
+* {user-select: none}
 </style>
