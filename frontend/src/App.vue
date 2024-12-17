@@ -93,10 +93,6 @@ export default {
     padding: 1rem;
   }
 
-  .el-form-item {
-    label-width: 150px;
-  }
-
   .action-buttons {
     flex-direction: column;
   }
