@@ -3,22 +3,10 @@
   <div class="bg-white shadow-md rounded my-6 p-6">
     <h1 class="text-3xl font-bold mb-6">Relatórios de Estoque</h1>
 
-    <!-- Estoque Atual -->
     <div class="mb-8">
       <h2 class="text-2xl font-semibold mb-4">Estoque Atual</h2>
-      <el-input
-        v-model="stockSearch"
-        placeholder="Pesquisar toners..."
-        prefix-icon="el-icon-search"
-        clearable
-        class="mb-4"
-      ></el-input>
-      <el-table
-        :data="filteredStock"
-        style="width: 100%"
-        border
-        stripe
-      >
+      <el-input v-model="stockSearch" placeholder="Pesquisar toners..." prefix-icon="el-icon-search" clearable class="mb-4"></el-input>
+      <el-table :data="filteredStock" style="width: 100%" border stripe>
         <el-table-column prop="id" label="ID" width="80"></el-table-column>
         <el-table-column prop="name" label="Nome do Toner"></el-table-column>
         <el-table-column prop="current_stock" label="Estoque Atual"></el-table-column>
@@ -29,22 +17,10 @@
       </div>
     </div>
 
-    <!-- Movimentações Recentes -->
     <div>
       <h2 class="text-2xl font-semibold mb-4">Movimentações Recentes</h2>
-      <el-input
-        v-model="movementSearch"
-        placeholder="Pesquisar movimentações..."
-        prefix-icon="el-icon-search"
-        clearable
-        class="mb-4"
-      ></el-input>
-      <el-table
-        :data="filteredMovements"
-        style="width: 100%"
-        border
-        stripe
-      >
+      <el-input v-model="movementSearch" placeholder="Pesquisar movimentações..." prefix-icon="el-icon-search" clearable class="mb-4"></el-input>
+      <el-table :data="filteredMovements" style="width: 100%" border stripe>
         <el-table-column prop="id" label="ID" width="80"></el-table-column>
         <el-table-column label="Tipo">
           <template #default="{ row }">
@@ -67,16 +43,15 @@
         </el-table-column>
         <el-table-column prop="printer" label="Impressora" width="150">
           <template #default="{ row }">
-            <span v-if="row.type === 'saida'">{{ row.printer }}</span>
+            <span v-if="row.type === 'saida'">{{ row.printer ? row.printer.name : 'Não informado' }}</span>
             <span v-else>—</span>
           </template>
         </el-table-column>
-        <!-- Caso queira formatar a data aqui também, use row.created_at -->
-        <el-table-column prop="created_at" label="Data de Criação" width="180">
-            <template #default="{ row }">
-              {{ formatDate(row.created_at || row.createdAt || row.date) }}
-            </template>
-          </el-table-column>
+        <el-table-column prop="createdAt" label="Data">
+          <template #default="{ row }">
+            {{ formatDate(row.createdAt) }}
+          </template>
+        </el-table-column>
       </el-table>
       <div v-if="filteredMovements.length === 0" class="text-center mt-4">
         Nenhuma movimentação encontrada.

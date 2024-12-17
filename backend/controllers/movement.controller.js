@@ -1,39 +1,33 @@
-// movement.controller.js
+// controllers/movement.controller.js
 
 const db = require('../models');
 const Movement = db.movements;
 const Toner = db.toners;
+const Printer = db.printers; // caso precise verificar impressora
 
-/**
- * Cria e salva uma nova movimentação.
- * Valida a requisição, garante que o toner exista e que há estoque suficiente se for uma saída.
- */
+// Criar e salvar uma nova movimentação
 exports.create = async (req, res) => {
   try {
-    const { type, technician, toner_id, quantity, reason, person_name, printer } = req.body;
+    const { type, technician, toner_id, quantity, reason, person_name, printer_id } = req.body;
 
-    // Validação dos campos obrigatórios
     if (!type || !technician || !toner_id || !quantity) {
       return res.status(400).send({
-        message: 'Conteúdo inválido: "type", "technician", "toner_id" e "quantity" são obrigatórios.',
+        message: 'Campos "type", "technician", "toner_id" e "quantity" são obrigatórios.',
       });
     }
 
-    // Validar o tipo de movimentação
     if (!['entrada', 'saida'].includes(type)) {
       return res.status(400).send({
         message: 'Tipo de movimentação inválido! Use "entrada" ou "saida".',
       });
     }
 
-    // Validar a quantidade
     if (quantity <= 0) {
       return res.status(400).send({
         message: 'A quantidade deve ser maior que zero!',
       });
     }
 
-    // Verificar se o toner existe
     const toner = await Toner.findByPk(toner_id);
     if (!toner) {
       return res.status(404).send({
@@ -41,14 +35,25 @@ exports.create = async (req, res) => {
       });
     }
 
-    // Verificar estoque se for saída
+    // Se for saida, verifica estoque
     if (type === 'saida' && toner.current_stock < quantity) {
       return res.status(400).send({
         message: 'Estoque insuficiente para esta movimentação.',
       });
     }
 
-    // Atualizar o estoque do toner
+    // Verifica impressora se fornecida
+    let printerInstance = null;
+    if (type === 'saida' && printer_id) {
+      printerInstance = await Printer.findByPk(printer_id);
+      if (!printerInstance) {
+        return res.status(404).send({
+          message: `Impressora com id=${printer_id} não encontrada.`,
+        });
+      }
+    }
+
+    // Atualizar estoque
     if (type === 'saida') {
       toner.current_stock -= quantity;
     } else if (type === 'entrada') {
@@ -56,7 +61,6 @@ exports.create = async (req, res) => {
     }
     await toner.save();
 
-    // Criar a movimentação
     const movement = {
       toner_id: toner_id,
       type: type,
@@ -64,7 +68,7 @@ exports.create = async (req, res) => {
       quantity: quantity,
       reason: reason || '',
       person_name: person_name || null,
-      printer: printer || null,
+      printer_id: type === 'saida' ? printer_id || null : null,
     };
 
     const data = await Movement.create(movement);
@@ -77,9 +81,7 @@ exports.create = async (req, res) => {
   }
 };
 
-/**
- * Retorna todas as movimentações do banco de dados, incluindo o toner associado, ordenadas pela data de criação.
- */
+// Recuperar todas as movimentações
 exports.findAll = async (req, res) => {
   try {
     const data = await Movement.findAll({
@@ -89,8 +91,13 @@ exports.findAll = async (req, res) => {
           as: 'toner',
           attributes: ['name'],
         },
+        {
+          model: db.printers,
+          as: 'printer',
+          attributes: ['name'],
+        }
       ],
-      order: [['created_at', 'DESC']], // Garante a ordenação pelas datas mais recentes primeiro
+      order: [['created_at', 'DESC']],
     });
     return res.send(data);
   } catch (err) {
@@ -101,9 +108,7 @@ exports.findAll = async (req, res) => {
   }
 };
 
-/**
- * Retorna uma única movimentação com base no id.
- */
+// Recuperar uma única movimentação por id
 exports.findOne = async (req, res) => {
   const { id } = req.params;
   try {
@@ -114,28 +119,28 @@ exports.findOne = async (req, res) => {
           as: 'toner',
           attributes: ['name'],
         },
+        {
+          model: db.printers,
+          as: 'printer',
+          attributes: ['name'],
+        }
       ],
     });
-
     if (!data) {
       return res.status(404).send({
         message: `Movimentação com id=${id} não encontrada.`,
       });
     }
-
     return res.send(data);
   } catch (err) {
     console.error(`Erro ao recuperar movimentação com id=${id}:`, err);
     return res.status(500).send({
-      message: 'Erro ao recuperar a movimentação solicitada.',
+      message: `Erro ao recuperar a movimentação com id=${id}.`,
     });
   }
 };
 
-/**
- * Atualiza uma movimentação pelo id.
- * Caso o tipo ou quantidade mudem, atualiza o estoque do toner associado.
- */
+// Atualizar uma movimentação por id
 exports.update = async (req, res) => {
   const { id } = req.params;
   try {
@@ -148,7 +153,6 @@ exports.update = async (req, res) => {
 
     const { type, quantity } = req.body;
 
-    // Se tipo ou quantidade foram alterados, ajustar o estoque
     if (type || quantity) {
       const originalType = movement.type;
       const originalQuantity = movement.quantity;
@@ -203,13 +207,9 @@ exports.update = async (req, res) => {
   }
 };
 
-/**
- * Deleta uma movimentação pelo id.
- * Reverte a alteração no estoque do toner antes de deletar.
- */
+// Deletar uma movimentação com id
 exports.delete = async (req, res) => {
   const { id } = req.params;
-
   try {
     const movement = await Movement.findByPk(id);
     if (!movement) {
@@ -225,7 +225,7 @@ exports.delete = async (req, res) => {
       });
     }
 
-    // Reverter a movimentação antes de deletar
+    // Reverter a movimentação
     if (movement.type === 'saida') {
       toner.current_stock += movement.quantity;
     } else if (movement.type === 'entrada') {
@@ -238,9 +238,7 @@ exports.delete = async (req, res) => {
     });
 
     if (num === 1) {
-      return res.send({
-        message: 'Movimentação deletada com sucesso!',
-      });
+      return res.send({ message: 'Movimentação deletada com sucesso!' });
     } else {
       return res.send({
         message: `Não foi possível deletar a movimentação com id=${id}. Talvez ela não exista.`,
@@ -251,5 +249,97 @@ exports.delete = async (req, res) => {
     return res.status(500).send({
       message: `Erro ao deletar a movimentação com id=${id}.`,
     });
+  }
+};
+
+// Bulk Create de entradas
+exports.bulkCreateEntrada = async (req, res) => {
+  const entries = req.body;
+  if (!Array.isArray(entries) || entries.length === 0) {
+    return res.status(400).send({ message: 'Envie um array de movimentações.' });
+  }
+
+  const movementsToCreate = [];
+  const t = await db.sequelize.transaction();
+  try {
+    for (const entry of entries) {
+      const { toner_id, quantity, technician, reason } = entry;
+
+      if (!toner_id || !quantity || !technician) {
+        throw new Error('Cada entrada deve ter toner_id, quantity e technician.');
+      }
+
+      const toner = await Toner.findByPk(toner_id, { transaction: t });
+      if (!toner) {
+        throw new Error(`Toner com id=${toner_id} não encontrado.`);
+      }
+
+      if (quantity <= 0) {
+        throw new Error('Quantidade deve ser maior que zero.');
+      }
+
+      // Atualizar estoque
+      toner.current_stock += quantity;
+      await toner.save({ transaction: t });
+
+      movementsToCreate.push({
+        toner_id,
+        type: 'entrada',
+        technician,
+        quantity,
+        reason: reason || '',
+        person_name: null,
+        printer_id: null
+      });
+    }
+
+    const createdMovements = await db.movements.bulkCreate(movementsToCreate, { transaction: t });
+    await t.commit();
+    return res.send(createdMovements);
+  } catch (err) {
+    await t.rollback();
+    return res.status(500).send({ message: err.message });
+  }
+};
+
+exports.bulkCreateSaida = async (req, res) => {
+  const entries = req.body;
+  if (!Array.isArray(entries) || entries.length === 0) {
+    return res.status(400).send({ message: 'Envie um array de movimentações.' });
+  }
+
+  const movementsToCreate = [];
+  const t = await db.sequelize.transaction();
+  try {
+    for (const entry of entries) {
+      const { toner_id, quantity, technician, reason, printer_id } = entry;
+      if (!toner_id || !quantity || !technician || !printer_id) {
+        throw new Error('Cada saída deve ter toner_id, quantity, technician e printer_id.');
+      }
+
+      const toner = await db.toners.findByPk(toner_id, { transaction: t });
+      if (!toner) throw new Error(`Toner com id=${toner_id} não encontrado.`);
+      if (toner.current_stock < quantity) throw new Error(`Estoque insuficiente para o toner id=${toner_id}.`);
+
+      toner.current_stock -= quantity;
+      await toner.save({ transaction: t });
+
+      movementsToCreate.push({
+        toner_id,
+        type: 'saida',
+        technician,
+        quantity,
+        reason: reason || '',
+        person_name: '',
+        printer_id
+      });
+    }
+
+    const createdMovements = await db.movements.bulkCreate(movementsToCreate, { transaction: t });
+    await t.commit();
+    return res.send(createdMovements);
+  } catch (err) {
+    await t.rollback();
+    return res.status(500).send({ message: err.message });
   }
 };

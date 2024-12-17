@@ -1,9 +1,6 @@
-// index.js
+// models/index.js
+const { Sequelize, DataTypes } = require('sequelize');
 
-const { Sequelize } = require('sequelize');
-
-// Ajuste as credenciais e o host conforme necessário.
-// Considere usar variáveis de ambiente para segurança.
 const sequelize = new Sequelize('postgres', 'postgres', 'senha123', {
   host: 'localhost',
   dialect: 'postgres',
@@ -12,19 +9,23 @@ const sequelize = new Sequelize('postgres', 'postgres', 'senha123', {
 });
 
 const db = {};
-
 db.Sequelize = Sequelize;
 db.sequelize = sequelize;
 
-// Importação das models
-db.toners = require('./toner.model')(sequelize, Sequelize);
-db.suppliers = require('./supplier.model')(sequelize, Sequelize);
-db.movements = require('./movement.model')(sequelize, Sequelize);
+db.toners = require('./toner.model')(sequelize, DataTypes);
+db.suppliers = require('./supplier.model')(sequelize, DataTypes);
+db.printers = require('./printer.model')(sequelize, DataTypes);
+db.movements = require('./movement.model')(sequelize, DataTypes);
+db.printer_toners = require('./printer_toners.model')(sequelize, DataTypes);
 
-// Definição das Relações
+// Relações
 db.toners.hasMany(db.movements, { foreignKey: 'toner_id', as: 'movements' });
 db.movements.belongsTo(db.toners, { foreignKey: 'toner_id', as: 'toner' });
 
-// Caso futuro: se quiser relacionar suppliers com toner ou movements, pode-se adicionar relações aqui.
+db.printers.hasMany(db.movements, { foreignKey: 'printer_id', as: 'movements' });
+db.movements.belongsTo(db.printers, { foreignKey: 'printer_id', as: 'printer' });
+
+db.toners.belongsToMany(db.printers, { through: db.printer_toners, foreignKey: 'toner_id', otherKey: 'printer_id', as: 'available_printers' });
+db.printers.belongsToMany(db.toners, { through: db.printer_toners, foreignKey: 'printer_id', otherKey: 'toner_id', as: 'compatible_toners' });
 
 module.exports = db;

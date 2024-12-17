@@ -7,19 +7,8 @@
         <el-button type="primary">Adicionar Novo Fornecedor</el-button>
       </router-link>
     </div>
-    <el-input
-      v-model="search"
-      placeholder="Pesquisar fornecedores..."
-      prefix-icon="el-icon-search"
-      clearable
-      class="mb-4"
-    ></el-input>
-    <el-table
-      :data="filteredSuppliers"
-      style="width: 100%"
-      border
-      stripe
-    >
+    <el-input v-model="search" placeholder="Pesquisar fornecedores..." prefix-icon="el-icon-search" clearable class="mb-4"></el-input>
+    <el-table :data="filteredSuppliers" style="width: 100%" border stripe>
       <el-table-column prop="id" label="ID" width="80"></el-table-column>
       <el-table-column prop="company_name" label="Nome da Empresa"></el-table-column>
       <el-table-column prop="contact" label="Contato"></el-table-column>
@@ -89,7 +78,7 @@ export default {
             this.$message.error('Erro ao excluir fornecedor.')
           })
       }).catch(() => {
-        // Ação cancelada, nenhuma mensagem necessária
+        // Ação cancelada
       })
     },
   },

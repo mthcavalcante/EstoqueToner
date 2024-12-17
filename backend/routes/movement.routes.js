@@ -1,5 +1,4 @@
-// movement.routes.js
-
+// routes/movement.routes.js
 module.exports = app => {
   const movements = require('../controllers/movement.controller.js');
   const router = require('express').Router();
@@ -18,6 +17,11 @@ module.exports = app => {
 
   // Deletar uma movimentação por id
   router.delete('/:id', movements.delete);
+
+  // Criar múltiplas entradas de toner
+  router.post('/bulk-entry', movements.bulkCreateEntrada);
+
+  router.post('/bulk-saida', movements.bulkCreateSaida);
 
   app.use('/api/movements', router);
 };

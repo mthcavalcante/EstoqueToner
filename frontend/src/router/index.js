@@ -9,6 +9,7 @@ import SupplierForm from '../components/SupplierForm.vue'
 import StockMovement from '../components/StockMovement.vue'
 import StockReports from '../components/StockReports.vue'
 import NotFoundComponent from '../components/NotFound.vue'
+import PrinterForm from '../components/PrinterForm.vue'
 
 const routes = [
   { path: '/', name: 'Home', redirect: '/dashboard' }, // Opcional: Redirecionar '/' para '/dashboard'
@@ -21,7 +22,13 @@ const routes = [
   { path: '/suppliers/edit/:id', name: 'EditSupplier', component: SupplierForm, props: true },
   { path: '/movements', name: 'StockMovement', component: StockMovement },
   { path: '/reports', name: 'StockReports', component: StockReports },
-  { path: '/:pathMatch(.*)*', name: 'NotFound', component: NotFoundComponent }, // Opcional: Rota de fallback para páginas não encontradas
+  { path: '/:pathMatch(.*)*', name: 'NotFound', component: NotFoundComponent },
+  { path: '/movements/bulk-entry',name: 'BulkEntryForm',component: () => import('../components/BulkEntryForm.vue')},
+  { path: '/printers/edit/:id', component: PrinterForm },
+  { path: '/printers',name: 'PrinterList',component: () => import('../components/PrinterList.vue')},
+  { path: '/printers/add',name: 'PrinterAdd',component: () => import('../components/PrinterForm.vue')},
+  { path: '/printers/edit/:id',name: 'PrinterEdit',component: () => import('../components/PrinterForm.vue'),props: true}
+  
 ]
 
 

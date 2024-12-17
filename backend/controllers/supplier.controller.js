@@ -1,32 +1,20 @@
-// supplier.controller.js
+// controllers/supplier.controller.js
 
 const db = require('../models');
 const Supplier = db.suppliers;
 
-/**
- * Cria e salva um novo fornecedor.
- * É obrigatório fornecer "company_name" e "contact".
- */
+// Criar um novo fornecedor
 exports.create = async (req, res) => {
   try {
     const { company_name, contact, whatsapp, address } = req.body;
 
-    // Validar a requisição
     if (!company_name || !contact) {
       return res.status(400).send({
         message: 'Campos "company_name" e "contact" são obrigatórios.',
       });
     }
 
-    // Criar um objeto fornecedor
-    const supplier = {
-      company_name,
-      contact,
-      whatsapp: whatsapp || '',
-      address: address || '',
-    };
-
-    // Salvar o fornecedor no banco de dados
+    const supplier = { company_name, contact, whatsapp: whatsapp || '', address: address || '' };
     const data = await Supplier.create(supplier);
     return res.send(data);
   } catch (err) {
@@ -37,9 +25,7 @@ exports.create = async (req, res) => {
   }
 };
 
-/**
- * Retorna todos os fornecedores do banco de dados.
- */
+// Recuperar todos os fornecedores
 exports.findAll = async (req, res) => {
   try {
     const data = await Supplier.findAll();
@@ -52,17 +38,13 @@ exports.findAll = async (req, res) => {
   }
 };
 
-/**
- * Retorna um único fornecedor com base no id fornecido.
- */
+// Recuperar um fornecedor por id
 exports.findOne = async (req, res) => {
   const { id } = req.params;
   try {
     const data = await Supplier.findByPk(id);
     if (!data) {
-      return res.status(404).send({
-        message: `Fornecedor com id=${id} não encontrado.`,
-      });
+      return res.status(404).send({ message: `Fornecedor com id=${id} não encontrado.` });
     }
     return res.send(data);
   } catch (err) {
@@ -73,24 +55,18 @@ exports.findOne = async (req, res) => {
   }
 };
 
-/**
- * Atualiza um fornecedor pelo id.
- * O corpo da requisição (req.body) pode conter qualquer campo atualizável do fornecedor.
- */
+// Atualizar um fornecedor por id
 exports.update = async (req, res) => {
   const { id } = req.params;
   try {
     const [num] = await Supplier.update(req.body, {
       where: { id: id },
     });
-
     if (num === 1) {
-      return res.send({
-        message: 'Fornecedor atualizado com sucesso.',
-      });
+      return res.send({ message: 'Fornecedor atualizado com sucesso.' });
     } else {
       return res.send({
-        message: `Não foi possível atualizar o fornecedor com id=${id}. Verifique se o fornecedor existe ou se os campos fornecidos estão corretos.`,
+        message: `Não foi possível atualizar o fornecedor com id=${id}.`,
       });
     }
   } catch (err) {
@@ -101,20 +77,15 @@ exports.update = async (req, res) => {
   }
 };
 
-/**
- * Deleta um fornecedor pelo id.
- */
+// Deletar um fornecedor por id
 exports.delete = async (req, res) => {
   const { id } = req.params;
   try {
     const num = await Supplier.destroy({
       where: { id: id },
     });
-
     if (num === 1) {
-      return res.send({
-        message: 'Fornecedor deletado com sucesso!',
-      });
+      return res.send({ message: 'Fornecedor deletado com sucesso!' });
     } else {
       return res.send({
         message: `Não foi possível deletar o fornecedor com id=${id}. Talvez ele não exista.`,
@@ -123,7 +94,7 @@ exports.delete = async (req, res) => {
   } catch (err) {
     console.error(`Erro ao deletar fornecedor com id=${id}:`, err);
     return res.status(500).send({
-      message: `Não foi possível deletar o fornecedor com id=${id}.`,
+      message: `Erro ao deletar o fornecedor com id=${id}.`,
     });
   }
 };

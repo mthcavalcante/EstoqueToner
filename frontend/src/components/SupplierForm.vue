@@ -1,27 +1,20 @@
+<!-- SupplierForm.vue -->
 <template>
   <div class="max-w-2xl mx-auto bg-white shadow-md rounded my-6 p-6">
     <h2 class="text-2xl font-semibold mb-4">{{ isEdit ? 'Editar Fornecedor' : 'Adicionar Fornecedor' }}</h2>
     <el-form @submit.prevent="saveSupplier" label-width="150px">
-      <el-form-item 
-        label="Nome da Empresa" 
-        :rules="[{ required: true, message: 'Por favor, insira o nome da empresa', trigger: 'blur' }]">
+      <el-form-item label="Nome da Empresa" :rules="[{ required: true, message: 'Por favor, insira o nome da empresa', trigger: 'blur' }]">
         <el-input v-model="supplier.company_name" placeholder="Nome da Empresa"></el-input>
       </el-form-item>
-
-      <el-form-item 
-        label="Contato Responsável" 
-        :rules="[{ required: true, message: 'Por favor, insira o contato', trigger: 'blur' }]">
+      <el-form-item label="Contato Responsável" :rules="[{ required: true, message: 'Por favor, insira o contato', trigger: 'blur' }]">
         <el-input v-model="supplier.contact" placeholder="Contato Responsável"></el-input>
       </el-form-item>
-
       <el-form-item label="Número de WhatsApp">
         <el-input v-model="supplier.whatsapp" placeholder="Número de WhatsApp"></el-input>
       </el-form-item>
-
       <el-form-item label="Endereço">
         <el-input v-model="supplier.address" placeholder="Endereço"></el-input>
       </el-form-item>
-
       <el-form-item>
         <el-button type="primary" @click="saveSupplier">{{ isEdit ? 'Atualizar' : 'Adicionar' }}</el-button>
         <router-link to="/suppliers">

@@ -12,5 +12,4 @@ export default {
 </script>
 
 <style scoped>
-/* Nenhum estilo adicional necessário */
 </style>

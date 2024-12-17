@@ -1,3 +1,4 @@
+<!-- TonerList.vue -->
 <template>
   <div class="bg-white shadow-md rounded my-6 p-6">
     <div class="flex justify-between items-center mb-4">
@@ -6,19 +7,8 @@
         <el-button type="primary">Adicionar Novo Toner</el-button>
       </router-link>
     </div>
-    <el-input
-      v-model="search"
-      placeholder="Pesquisar toners..."
-      prefix-icon="el-icon-search"
-      clearable
-      class="mb-4"
-    ></el-input>
-    <el-table
-      :data="filteredToners"
-      style="width: 100%"
-      border
-      stripe
-    >
+    <el-input v-model="search" placeholder="Pesquisar toners..." prefix-icon="el-icon-search" clearable class="mb-4"></el-input>
+    <el-table :data="filteredToners" style="width: 100%" border stripe>
       <el-table-column prop="id" label="ID" width="80"></el-table-column>
       <el-table-column prop="name" label="Nome do Toner"></el-table-column>
       <el-table-column prop="compatible" label="Marca/Modelo Compatível"></el-table-column>
