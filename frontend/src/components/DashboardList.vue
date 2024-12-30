@@ -161,7 +161,7 @@ export default {
         .then(response => {
           const toners = response.data
           this.totalToners = toners.length
-          this.lowStockToners = toners.filter(toner => toner.current_stock < toner.min_level)
+          this.lowStockToners = toners.filter(toner => toner.current_stock <= toner.min_level)
           this.calculateStockDistribution(toners)
         })
         .catch(() => {

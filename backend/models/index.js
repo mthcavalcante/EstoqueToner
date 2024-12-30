@@ -1,12 +1,12 @@
 // models/index.js
 const { Sequelize, DataTypes } = require('sequelize');
 
-const sequelize = new Sequelize('postgres', 'postgres', 'senha123', {
-  host: 'localhost',
+const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, process.env.DB_PASSWORD, {
+  host: process.env.DB_HOST,
+  port: process.env.DB_PORT,
   dialect: 'postgres',
-  logging: false, // Desabilita logs do SQL no console, pode habilitar se precisar debugar
-  define: {schema: 'estoque_toner'}
 });
+
 
 const db = {};
 db.Sequelize = Sequelize;
