@@ -2,8 +2,7 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_IMAGE = 'geolab/estoque-toner:latest'
-        CONTAINER_NAME = 'estoque-toner'
+        COMPOSE_PROJECT_NAME = 'estoque-toner'
     }
 
     stages {
@@ -13,30 +12,26 @@ pipeline {
             }
         }
 
-        stage('Build Docker') {
+        stage('Build e Deploy via Docker Compose') {
             steps {
-                echo "Construindo imagem Docker..."
-                dir('backend') {
-                    sh 'docker build -t $DOCKER_IMAGE .'
-                }
-            }
-        }
-
-        stage('Deploy') {
-            steps {
-                echo "Executando script de deploy..."
-                sh 'chmod +x jenkins/deploy.sh'
-                sh './jenkins/deploy.sh'
+                echo "Iniciando containers..."
+                // Permissão opcional se você estiver usando scripts auxiliares
+                sh 'chmod +x jenkins/deploy.sh || true'
+                
+                // Build e up de todos os serviços
+                sh 'docker compose down || true'
+                sh 'docker compose up -d --build'
             }
         }
     }
 
     post {
         success {
-            echo "✅ Deploy realizado com sucesso!"
+            echo "✅ Todos os serviços foram iniciados com sucesso!"
+            sh 'docker ps'
         }
         failure {
-            echo "❌ Erro ao realizar o deploy."
+            echo "❌ Falha ao iniciar os containers. Verifique os logs."
         }
     }
 }
