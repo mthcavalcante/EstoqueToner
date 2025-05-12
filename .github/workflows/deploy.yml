@@ -1,0 +1,16 @@
+name: Deploy via Jenkins
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  trigger-jenkins:
+    name: Trigger Jenkins Job
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Send trigger to Jenkins
+        run: |
+          curl -X POST "https://jenkins.geolab.com.br/job/EstoqueToner-Pipeline/build?token=${{ secrets.JENKINS_TOKEN }}"

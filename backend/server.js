@@ -20,7 +20,7 @@ require('./routes/supplier.routes')(app);
 require('./routes/movement.routes')(app);
 require('./routes/printer.routes')(app);
 
-const PORT = process.env.PORT || 8080;
+const PORT = process.env.PORT || 8081;
 
 db.sequelize.authenticate()
   .then(() => {

@@ -14,7 +14,7 @@ RUN npm install
 COPY . .
 
 # Exponha a porta
-EXPOSE 8080
+EXPOSE 8081
 
 # Comando de inicialização
 CMD ["npm", "start"]
