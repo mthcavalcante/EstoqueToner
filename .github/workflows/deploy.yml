@@ -1,4 +1,4 @@
-name: Deploy via Jenkins
+name: Deploy via Jenkins Local Runner
 
 on:
   push:
@@ -6,9 +6,9 @@ on:
       - main
 
 jobs:
-  Trigger-Jenkins:
-    runs-on: self-hosted  # <- usa o runner da sua rede
+  trigger-jenkins:
+    runs-on: self-hosted
     steps:
-      - name: Trigger Jenkins Job
+      - name: Trigger Jenkins via localhost
         run: |
-          curl -X POST "http://localhost:8080/job/EstoqueToner-Pipeline/build?token=${{ secrets.JENKINS_TOKEN }}"
+          curl -X POST "http://localhost:8080/job/EstoqueToner-Pipeline/build?token=estoque_token"
