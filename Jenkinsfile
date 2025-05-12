@@ -25,6 +25,7 @@ pipeline {
         stage('Deploy') {
             steps {
                 echo "Executando script de deploy..."
+                sh 'chmod +x jenkins/deploy.sh'
                 sh './jenkins/deploy.sh'
             }
         }
@@ -32,10 +33,10 @@ pipeline {
 
     post {
         success {
-            echo "Deploy realizado com sucesso!"
+            echo "✅ Deploy realizado com sucesso!"
         }
         failure {
-            echo "Erro ao realizar o deploy."
+            echo "❌ Erro ao realizar o deploy."
         }
     }
 }
