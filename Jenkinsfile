@@ -19,7 +19,7 @@ pipeline {
                 sh 'chmod +x jenkins/deploy.sh || true'
                 
                 // Build e up de todos os serviços
-                sh 'docker compose down || true'
+                sh 'docker-compose down || true'
                 sh 'docker-compose up -d --build'
             }
         }
