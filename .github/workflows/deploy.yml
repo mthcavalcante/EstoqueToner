@@ -1,4 +1,4 @@
-name: Deploy via Jenkins Local Runner
+name: Deploy via Jenkins
 
 on:
   push:
@@ -6,9 +6,23 @@ on:
       - main
 
 jobs:
-  trigger-jenkins:
-    runs-on: self-hosted
+  Trigger-Jenkins:
+    runs-on: ubuntu-latest
     steps:
-      - name: Trigger Jenkins via localhost
+      - name: Trigger Jenkins Job with Crumb
+        env:
+          JENKINS_URL: http://localhost:8080
+          JENKINS_USER: ${{ secrets.JENKINS_USER }}
+          JENKINS_API_TOKEN: ${{ secrets.JENKINS_API_TOKEN }}
+          JENKINS_JOB: EstoqueToner-Pipeline
+          JENKINS_JOB_TOKEN: ${{ secrets.JENKINS_JOB_TOKEN }}
         run: |
-          curl -X POST "http://localhost:8080/job/EstoqueToner-Pipeline/build?token=estoque_token"
+          # Obtém o Crumb
+          CRUMB=$(curl -s -u "$JENKINS_USER:$JENKINS_API_TOKEN" "$JENKINS_URL/crumbIssuer/api/xml?xpath=concat(//crumbRequestField,\":\",//crumb)")
+
+          echo "Obtido crumb: $CRUMB"
+
+          # Executa o job com o crumb
+          curl -X POST "$JENKINS_URL/job/$JENKINS_JOB/build?token=$JENKINS_JOB_TOKEN" \
+            -u "$JENKINS_USER:$JENKINS_API_TOKEN" \
+            -H "$CRUMB"
