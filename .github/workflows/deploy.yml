@@ -17,12 +17,9 @@ jobs:
           JENKINS_JOB: EstoqueToner-Pipeline
           JENKINS_JOB_TOKEN: ${{ secrets.JENKINS_JOB_TOKEN }}
         run: |
-          # Obtém o Crumb
           CRUMB=$(curl -s -u "$JENKINS_USER:$JENKINS_API_TOKEN" "$JENKINS_URL/crumbIssuer/api/xml?xpath=concat(//crumbRequestField,\":\",//crumb)")
 
           echo "Obtido crumb: $CRUMB"
-
-          # Executa o job com o crumb
           curl -X POST "$JENKINS_URL/job/$JENKINS_JOB/build?token=$JENKINS_JOB_TOKEN" \
             -u "$JENKINS_USER:$JENKINS_API_TOKEN" \
             -H "$CRUMB"
