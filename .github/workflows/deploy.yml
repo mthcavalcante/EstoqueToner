@@ -6,11 +6,9 @@ on:
       - main
 
 jobs:
-  trigger-jenkins:
-    name: Trigger Jenkins Job
+  Trigger-Jenkins:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Send trigger to Jenkins
+      - name: Trigger Jenkins Job
         run: |
           curl -X POST "https://jenkins.geolab.com.br/job/EstoqueToner-Pipeline/build?token=${{ secrets.JENKINS_TOKEN }}"
