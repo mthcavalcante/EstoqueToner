@@ -7,9 +7,8 @@ on:
 
 jobs:
   Trigger-Jenkins:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted  # <- usa o runner da sua rede
     steps:
       - name: Trigger Jenkins Job
         run: |
-          curl -X POST https://jenkins.geolab.com.br/job/EstoqueToner-Pipeline/build \
-            --data token=${{ secrets.JENKINS_TOKEN }}
+          curl -X POST "http://localhost:8080/job/EstoqueToner-Pipeline/build?token=${{ secrets.JENKINS_TOKEN }}"
