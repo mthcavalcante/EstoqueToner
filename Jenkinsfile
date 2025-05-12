@@ -16,7 +16,9 @@ pipeline {
         stage('Build Docker') {
             steps {
                 echo "Construindo imagem Docker..."
-                sh 'docker build -t $DOCKER_IMAGE .'
+                dir('backend') {
+                    sh 'docker build -t $DOCKER_IMAGE .'
+                }
             }
         }
 
