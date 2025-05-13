@@ -1,23 +1,15 @@
-# Use a imagem base do Node.js
-FROM node:18-alpine
+# Etapa 1: build da aplicação
+FROM node:18-alpine as build-stage
 
-# Define o diretório de trabalho
 WORKDIR /app
-
-# Copia o package.json e package-lock.json
 COPY package*.json ./
-
-# Instala as dependências
 RUN npm install
-
-# Copia o restante do código
 COPY . .
-
-# Compila a aplicação
 RUN npm run build
 
-# Usa o servidor nginx para servir o frontend
-FROM nginx:stable-alpine
-COPY --from=0 /app/dist /usr/share/nginx/html
+# Etapa 2: servir via Nginx
+FROM nginx:stable-alpine as production-stage
+COPY --from=build-stage /app/dist /usr/share/nginx/html
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
