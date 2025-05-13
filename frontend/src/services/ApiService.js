@@ -3,7 +3,7 @@
 import axios from 'axios';
 
 // Defina a URL base da sua API
-const API_URL = 'http://backend:8081/api';
+const API_URL = 'http://192.168.1.82:8081/api';
 
 export default {
   // =========================
